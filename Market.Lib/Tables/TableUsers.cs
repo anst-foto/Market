@@ -8,26 +8,33 @@ public class TableUsers : BaseTable, ISelect<User>
 {
     public IEnumerable<User>? GetAll()
     {
-        var result = new List<User>();
-        Connection.Open();
-
-        const string sql = """
-                           SELECT id, user_name,
-                                  last_name, first_name, patronymic
-                           FROM view_users
-                           """;
-        using var command = new NpgsqlCommand(sql, Connection);
-        var reader = command.ExecuteReader();
-        
-        if (!reader.HasRows) return null;
-        
-        while (reader.Read())
+        try
         {
-            result.Add(CreateUser(reader));
+            var result = new List<User>();
+            Connection.Open();
+
+            const string sql = """
+                               SELECT id, user_name,
+                                      last_name, first_name, patronymic
+                               FROM view_users
+                               """;
+            using var command = new NpgsqlCommand(sql, Connection);
+            var reader = command.ExecuteReader();
+
+            if (!reader.HasRows) return null;
+
+            while (reader.Read())
+            {
+                result.Add(CreateUser(reader));
+            }
+
+            Connection.Close();
+            return result;
         }
-        
-        Connection.Close();
-        return result;
+        catch (NpgsqlException e)
+        {
+            throw new GetDataFromTable(nameof(TableUsers), e);
+        }
     }
 
     public User? GetById(int id)

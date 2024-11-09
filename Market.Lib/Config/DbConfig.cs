@@ -27,7 +27,23 @@ public class DbConfig
 
     public static DbConfig? Load(string configPath = "db_config.json")
     {
-        var json = File.ReadAllText(configPath);
-        return JsonSerializer.Deserialize<DbConfig>(json);
+        string? json = null;
+        try
+        {
+            json = File.ReadAllText(configPath);
+        }
+        catch (Exception e)
+        {
+            throw new FileConfigException(configPath, e);
+        }
+        
+        try
+        {
+            return JsonSerializer.Deserialize<DbConfig>(json);
+        }
+        catch(Exception e)
+        {
+            throw new DbConfigException(e);
+        }
     }
 }

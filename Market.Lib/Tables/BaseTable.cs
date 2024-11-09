@@ -10,6 +10,9 @@ public abstract class BaseTable
     protected BaseTable()
     {
         var config = DbConfig.Load();
+        
+        if (config is null) throw new DbConfigException();
+        
         Connection = new NpgsqlConnection(config.ConnectionString);
     }
 }

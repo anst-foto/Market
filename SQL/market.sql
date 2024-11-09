@@ -84,7 +84,10 @@ CREATE VIEW view_user_baskets AS
 CREATE VIEW view_users AS
     SELECT table_users.id AS id,
            table_users.user_name AS user_name,
-           CONCAT(table_persons.last_name, ' ', table_persons.first_name, ' ', table_persons.patronymic) AS full_name
+           table_persons.last_name AS last_name,
+           table_persons.first_name AS first_name,
+           table_persons.patronymic AS patronymic
+           --CONCAT(table_persons.last_name, ' ', table_persons.first_name, ' ', table_persons.patronymic) AS full_name
     FROM table_users
         JOIN table_persons
             ON table_users.id = table_persons.id;
@@ -95,7 +98,7 @@ CREATE VIEW view_orders_users AS
            view_orders.time AS time,
            view_orders.status AS status,
            view_orders.basket_name AS basket_name,
-           view_users.full_name AS user_full_name,
+           CONCAT(view_users.last_name, ' ', view_users.first_name, ' ', view_users.patronymic) AS user_full_name,
            view_users.user_name AS user_name
     FROM view_orders
         JOIN view_user_baskets

@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using Dapper;
 using Market.Lib.Models;
 using Npgsql;
 
@@ -10,7 +11,6 @@ public class TableUsers : BaseTable, ISelect<User>
     {
         try
         {
-            var result = new List<User>();
             Connection.Open();
 
             const string sql = """
@@ -18,7 +18,7 @@ public class TableUsers : BaseTable, ISelect<User>
                                       last_name, first_name, patronymic
                                FROM view_users
                                """;
-            using var command = new NpgsqlCommand(sql, Connection);
+            /*using var command = new NpgsqlCommand(sql, Connection);
             var reader = command.ExecuteReader();
 
             if (!reader.HasRows) return null;
@@ -26,8 +26,9 @@ public class TableUsers : BaseTable, ISelect<User>
             while (reader.Read())
             {
                 result.Add(CreateUser(reader));
-            }
+            }*/
 
+            var result = Connection.Query<User>(sql);
             Connection.Close();
             return result;
         }
@@ -47,30 +48,9 @@ public class TableUsers : BaseTable, ISelect<User>
                            FROM view_users
                            WHERE id = @id
                            """;
-        using var command = new NpgsqlCommand(sql, Connection);
-        command.Parameters.AddWithValue("@id", id);
-        
-        var reader = command.ExecuteReader();
-        
-        if (!reader.HasRows) return null;
-        
-        reader.Read();
-
-        var user = CreateUser(reader);
+        var user = Connection.QuerySingleOrDefault<User>(sql, new { id });
         
         Connection.Close();
         return user;
-    }
-
-    private User CreateUser(NpgsqlDataReader reader)
-    {
-        return new User
-        {
-            Id = reader.GetInt32("id"),
-            UserName = reader.GetString("user_name"),
-            LastName = reader.GetString("last_name"),
-            FirstName = reader.GetString("first_name"),
-            Patronymic = reader.GetString("patronymic")
-        };
     }
 }

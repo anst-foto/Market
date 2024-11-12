@@ -14,5 +14,8 @@ public abstract class BaseTable
         if (config is null) throw new DbConfigException();
         
         Connection = new NpgsqlConnection(config.ConnectionString);
+        
+        //Включение сопоставления имён с нижним подчёркиванием
+        Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
     }
 }
